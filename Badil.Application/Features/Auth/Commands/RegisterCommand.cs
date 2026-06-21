@@ -2,6 +2,7 @@ using AutoMapper;
 using Badil.Application.Common.Interfaces;
 using Badil.Application.Features.Auth.DTOs;
 using Badil.Domain.Entity;
+using Badil.Domain.Enum;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -29,6 +30,7 @@ namespace Badil.Application.Features.Auth.Commands
             var user = _mapper.Map<AppUser>(request);
             user.UserName = request.Email;
             user.IsActive = true;
+            user.Role = UserRole.User;
 
             var result = await _userManager.CreateAsync(user, request.Password!);
             if (!result.Succeeded)

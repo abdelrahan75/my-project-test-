@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +8,8 @@ namespace Badil.Domain.Enum
 {
     public enum UserRole
     {
-        Admin ,
+        SuperAdmin,
+        Admin,
         User
     }
 }

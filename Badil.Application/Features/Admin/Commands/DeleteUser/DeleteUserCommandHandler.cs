@@ -1,4 +1,4 @@
-﻿using Badil.Application.Common.Interfaces.Repositories;
+using Badil.Application.Common.Interfaces.Repositories;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace Badil.Application.Features.Admin.Commands.DeleteUser
             _userRepository = userRepository;
         }
 
-        public async Task<Unit> Handle(
+        public async Task Handle(
             DeleteUserCommand request,
             CancellationToken cancellationToken)
         {
@@ -28,8 +28,7 @@ namespace Badil.Application.Features.Admin.Commands.DeleteUser
                 throw new Exception("User not found");
 
             await _userRepository.DeleteAsync(user, cancellationToken);
-
-            return Unit.Value;
         }
     }
 }
+

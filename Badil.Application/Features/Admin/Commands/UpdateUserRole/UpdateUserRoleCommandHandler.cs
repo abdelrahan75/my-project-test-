@@ -1,4 +1,4 @@
-﻿using Badil.Application.Common.Interfaces.Repositories;
+using Badil.Application.Common.Interfaces.Repositories;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace Badil.Application.Features.Admin.Commands.UpdateUserRole
             _userRepository = userRepository;
         }
 
-        public async Task<Unit> Handle(
+        public async Task Handle(
             UpdateUserRoleCommand request,
             CancellationToken cancellationToken)
         {
@@ -30,8 +30,7 @@ namespace Badil.Application.Features.Admin.Commands.UpdateUserRole
             user.Role = request.NewRole;
 
             await _userRepository.UpdateAsync(user, cancellationToken);
-
-            return Unit.Value;
         }
     }
 }
+
