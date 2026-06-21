@@ -18,12 +18,13 @@ namespace Badil.Infrastructure.Repositories
         public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
         {
             await _context.Set<T>().AddAsync(entity , cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
         {
             _context.Set<T>().Remove(entity);
-            await Task.CompletedTask;
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
@@ -45,7 +46,7 @@ namespace Badil.Infrastructure.Repositories
         public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
             _context.Set<T>().Update(entity);
-            await Task.CompletedTask;
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

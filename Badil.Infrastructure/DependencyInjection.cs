@@ -26,6 +26,9 @@ namespace Badil.Infrastructure
            services.AddScoped<IFileService, FileService>();
            services.AddScoped<ITokenService, TokenService>();
 
+           services.AddHttpContextAccessor();
+           services.AddScoped<ICurrentUserService, CurrentUserService>();
+
             return services;
         }
     }
