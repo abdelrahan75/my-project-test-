@@ -76,5 +76,43 @@ namespace Badil.API.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost("{id}/approve")]
+        public async Task<IActionResult> Approve(Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new ApproveVerificationRequestCommand { Id = id });
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost("{id}/reject")]
+        public async Task<IActionResult> Reject(Guid id, [FromBody] RejectVerificationRequestCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                await _mediator.Send(command);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyRequests()
+        {
+            var result = await _mediator.Send(new GetMyVerificationRequestsQuery());
+            return Ok(result);
+        }
     }
 }

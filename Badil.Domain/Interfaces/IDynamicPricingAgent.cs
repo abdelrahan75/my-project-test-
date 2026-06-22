@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Badil.Domain.Interfaces
+﻿namespace Badil.Domain.Interfaces
 {
-    internal interface IDynamicPricingAgent
+    public interface IDynamicPricingAgent
     {
+        Task<decimal> CalculateSuggestedPriceAsync(string materialType, double quantity, string condition = "average", CancellationToken ct = default);
+        Task<decimal> AdjustPriceForTransportAsync(decimal basePrice, double distanceKm, CancellationToken ct = default);
+        Task<decimal> GetMarketPriceTrendAsync(string materialType, CancellationToken ct = default);
     }
 }

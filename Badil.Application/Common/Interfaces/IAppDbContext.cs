@@ -9,7 +9,6 @@ namespace Badil.Application.Common.Interfaces
         DbSet<AppUser> Users { get; }
         DbSet<Company> Companies { get; }
         DbSet<DisputeTicket> DisputeTickets { get; }
-        DbSet<GeoLocation> GeoLocations { get; }
         DbSet<MaterialRequest> MaterialRequests { get; }
         DbSet<Message> Messages { get; }
         DbSet<Notification> Notifications { get; }

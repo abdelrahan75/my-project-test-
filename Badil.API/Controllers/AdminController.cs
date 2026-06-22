@@ -1,10 +1,11 @@
-using Badil.Application.Features.Auth.Commands;
-using Badil.Application.Features.Auth.DTOs;
 using Badil.Application.Features.Admin.Commands.CreateAdmin;
 using Badil.Application.Features.Admin.Commands.DeleteUser;
 using Badil.Application.Features.Admin.Commands.UpdateUserRole;
 using Badil.Application.Features.Admin.Queries.GetAdminDashboard;
 using Badil.Application.Features.Admin.Queries.GetAllUsers;
+using Badil.Application.Features.Admin.Queries;
+using Badil.Application.Features.Auth.Commands;
+using Badil.Application.Features.Auth.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +23,6 @@ namespace Badil.API.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>
-        /// Admin login — only Admin and SuperAdmin users can authenticate here.
-        /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> AdminLogin([FromBody] AdminLoginCommand command)
         {
@@ -39,9 +37,6 @@ namespace Badil.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Create a new Admin account. Only SuperAdmin can do this.
-        /// </summary>
         [Authorize(Roles = "SuperAdmin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminCommand command)
@@ -57,9 +52,6 @@ namespace Badil.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Get all users. Admin and SuperAdmin only.
-        /// </summary>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
@@ -68,9 +60,6 @@ namespace Badil.API.Controllers
             return Ok(users);
         }
 
-        /// <summary>
-        /// Update a user's role. Admin and SuperAdmin only.
-        /// </summary>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("users/{id}/role")]
         public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] UpdateUserRoleCommand command)
@@ -87,9 +76,6 @@ namespace Badil.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Delete a user. Admin and SuperAdmin only.
-        /// </summary>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("users/{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
@@ -105,15 +91,28 @@ namespace Badil.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Get admin dashboard statistics. Admin and SuperAdmin only.
-        /// </summary>
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetDashboard()
         {
             var dashboard = await _mediator.Send(new GetAdminDashboardQuery());
             return Ok(dashboard);
+        }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("verification-requests")]
+        public async Task<IActionResult> GetPendingVerifications()
+        {
+            var result = await _mediator.Send(new GetPendingVerificationsQuery());
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpGet("disputes")]
+        public async Task<IActionResult> GetOpenDisputes()
+        {
+            var result = await _mediator.Send(new GetOpenDisputesQuery());
+            return Ok(result);
         }
     }
 }

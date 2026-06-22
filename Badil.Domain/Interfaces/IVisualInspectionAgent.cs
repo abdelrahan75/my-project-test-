@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Badil.Domain.Interfaces
+﻿namespace Badil.Domain.Interfaces
 {
-    internal interface IVisualInspectionAgent
+    public interface IVisualInspectionAgent
     {
+        Task<bool> ValidateImageAsync(string imageUrl, CancellationToken ct = default);
+        Task<string> SuggestMaterialTypeAsync(string imageUrl, CancellationToken ct = default);
+        Task<List<string>> AutoTagImageAsync(string imageUrl, CancellationToken ct = default);
     }
 }

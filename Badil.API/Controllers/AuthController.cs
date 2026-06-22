@@ -1,6 +1,8 @@
 using Badil.Application.Features.Auth.Commands;
 using Badil.Application.Features.Auth.DTOs;
+using Badil.Application.Features.Auth.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Badil.API.Controllers
@@ -37,6 +39,21 @@ namespace Badil.API.Controllers
             {
                 var response = await _mediator.Send(command);
                 return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            try
+            {
+                var profile = await _mediator.Send(new GetMyProfileQuery());
+                return Ok(profile);
             }
             catch (Exception ex)
             {

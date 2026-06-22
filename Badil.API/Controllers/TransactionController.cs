@@ -68,7 +68,7 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -86,8 +86,57 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
+        }
+
+        [HttpPost("{id}/lock-funds")]
+        public async Task<IActionResult> LockFunds(Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new LockFundsCommand { TransactionId = id });
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/confirm-delivery")]
+        public async Task<IActionResult> ConfirmDelivery(Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new ConfirmDeliveryCommand { TransactionId = id });
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/release-funds")]
+        public async Task<IActionResult> ReleaseFunds(Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new ReleaseFundsCommand { TransactionId = id });
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyTransactions()
+        {
+            var result = await _mediator.Send(new GetMyTransactionsQuery());
+            return Ok(result);
         }
     }
 }

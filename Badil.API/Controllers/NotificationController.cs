@@ -62,7 +62,7 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -80,8 +80,47 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
+        }
+
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyNotifications()
+        {
+            var result = await _mediator.Send(new GetMyNotificationsQuery());
+            return Ok(result);
+        }
+
+        [HttpPatch("{id}/mark-read")]
+        public async Task<IActionResult> MarkAsRead(Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new MarkNotificationReadCommand { NotificationId = id });
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid();
+            }
+        }
+
+        [HttpPost("mark-all-read")]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            await _mediator.Send(new MarkAllNotificationsReadCommand());
+            return NoContent();
+        }
+
+        [HttpGet("unread-count")]
+        public async Task<IActionResult> GetUnreadCount()
+        {
+            var count = await _mediator.Send(new GetUnreadNotificationCountQuery());
+            return Ok(new { count });
         }
     }
 }

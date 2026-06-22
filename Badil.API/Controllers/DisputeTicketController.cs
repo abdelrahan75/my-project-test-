@@ -83,5 +83,25 @@ namespace Badil.API.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost("{id}/resolve")]
+        public async Task<IActionResult> Resolve(Guid id, [FromBody] ResolveDisputeTicketCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                await _mediator.Send(command);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid();
+            }
+        }
     }
 }

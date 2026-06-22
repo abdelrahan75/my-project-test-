@@ -1,16 +1,12 @@
-using Badil.Application.Common.Interfaces;
 using Badil.Application;
-using Badil.Application.Common.Interfaces.Repositories;
-using Badil.Domain.Entity;
 using Badil.Infrastructure;
 using Badil.Infrastructure.Data;
-using MediatR;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using FluentValidation.AspNetCore;
 
 namespace Badil.API
 {
@@ -20,15 +16,12 @@ namespace Badil.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<IAppDbContext>());
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Program>());
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // CORS Configuration
+            // CORS
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
@@ -42,14 +35,16 @@ namespace Badil.API
                         .AllowCredentials());
             });
 
-            builder.Services.AddDbContext<AppDbContext>( options => // Setup The Connection String for AppDbContext
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-                );
+            // Database
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddInfrastructureServices(); // Add the infrastructure layer services
-            builder.Services.AddApplicationServices(); // Add the application layer services
+            // Layer DI
+            builder.Services.AddInfrastructureServices();
+            builder.Services.AddApplicationServices();
 
-            builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
+            // Identity
+            builder.Services.AddIdentity<Domain.Entity.AppUser, IdentityRole<Guid>>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;
@@ -59,7 +54,7 @@ namespace Badil.API
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-            // JWT Authentication Configuration
+            // JWT
             var jwtSettings = builder.Configuration.GetSection("Jwt");
             var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
 
@@ -85,17 +80,11 @@ namespace Badil.API
                 };
             });
 
-            builder.Services.AddScoped<IAppDbContext>(provider =>
-                provider.GetRequiredService<AppDbContext>()
-            );
+            builder.Services.AddHealthChecks();
 
-            builder.Services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
-            });
             var app = builder.Build();
 
-            // Seed data
+            // Seed
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -112,7 +101,7 @@ namespace Badil.API
                 }
             }
 
-            // Configure the HTTP request pipeline.
+            // Middleware pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -120,13 +109,11 @@ namespace Badil.API
             }
 
             app.UseCors("AllowFrontend");
-
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
+            app.MapHealthChecks("/health");
 
             app.Run();
         }

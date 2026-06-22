@@ -77,5 +77,27 @@ namespace Badil.API.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPost("auto-match")]
+        public async Task<IActionResult> AutoMatch()
+        {
+            var count = await _mediator.Send(new AutoMatchCommand());
+            return Ok(new { matchesCreated = count });
+        }
+
+        [HttpGet("for-listing/{listingId}")]
+        public async Task<IActionResult> GetForListing(Guid listingId)
+        {
+            var result = await _mediator.Send(new GetMatchesForListingQuery { ListingId = listingId });
+            return Ok(result);
+        }
+
+        [HttpGet("for-request/{requestId}")]
+        public async Task<IActionResult> GetForRequest(Guid requestId)
+        {
+            var result = await _mediator.Send(new GetMatchesForRequestQuery { RequestId = requestId });
+            return Ok(result);
+        }
     }
 }

@@ -4,7 +4,7 @@ using Badil.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 
 namespace Badil.Infrastructure.Data
 {
@@ -14,7 +14,6 @@ namespace Badil.Infrastructure.Data
         // public DbSet<AppUser> Users { get; set; } It's already provided by IdentityDbContext
         public DbSet<Company> Companies { get; set; }
         public DbSet<DisputeTicket> DisputeTickets { get; set; }
-        public DbSet<GeoLocation> GeoLocations { get; set; }
         public DbSet<MaterialRequest> MaterialRequests { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
@@ -24,8 +23,11 @@ namespace Badil.Infrastructure.Data
         public DbSet<WasteListing> WasteListings { get; set; }
 
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {   
+        private readonly ICurrentUserService _currentUserService;
+
+        public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUserService currentUserService) : base(options)
+        {
+            _currentUserService = currentUserService;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -43,12 +45,13 @@ namespace Badil.Infrastructure.Data
                 {
                     case EntityState.Added:
                         entry.Entity.CreatedAt = DateTime.UtcNow;
-                        // entry.Entity.CreatedBy = _currentUserService.UserId; 
-                        // This would require injecting a service
+                        if (_currentUserService.UserId.HasValue)
+                            entry.Entity.CreatedBy = _currentUserService.UserId.Value;
                         break;
                     case EntityState.Modified:
                         entry.Entity.UpdatedAt = DateTime.UtcNow;
-                        // entry.Entity.UpdatedBy = _currentUserService.UserId;
+                        if (_currentUserService.UserId.HasValue)
+                            entry.Entity.UpdatedBy = _currentUserService.UserId.Value;
                         break;
                 }
             }

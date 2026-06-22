@@ -68,7 +68,7 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -86,8 +86,15 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
+        }
+
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyRequests()
+        {
+            var result = await _mediator.Send(new GetMyMaterialRequestsQuery());
+            return Ok(result);
         }
     }
 }

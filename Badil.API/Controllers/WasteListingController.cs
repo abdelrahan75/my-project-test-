@@ -69,7 +69,7 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -88,7 +88,42 @@ namespace Badil.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] SearchWasteListingsQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyListings()
+        {
+            var result = await _mediator.Send(new GetMyWasteListingsQuery());
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("{id}/upload-image")]
+        public async Task<IActionResult> UploadImage(Guid id, IFormFile file)
+        {
+            try
+            {
+                var command = new UploadWasteListingImageCommand { ListingId = id, File = file };
+                var path = await _mediator.Send(command);
+                return Ok(new { url = path });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid();
             }
         }
     }
